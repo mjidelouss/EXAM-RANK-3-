@@ -21,8 +21,13 @@ int ft_putchar(char c)
 int ft_putstr(char *s)
 {
     int ret = 0;
-    while (*s)
-        ret += ft_putchar(*s++);
+    if (!s)
+        ret += write(1,"(null)",6);
+    else
+    {
+        while (*s)
+            ret += ft_putchar(*s++);
+    }
     return ret;
 }
 
@@ -85,7 +90,7 @@ int ft_printf(char *f, ...)
 int main()
 {
     int f, s;
-    f = ft_printf("%s %c %d %d %x\n", "hello", 'X', INT_MAX, INT_MIN, UINT_MAX);
-    s =    printf("%s %c %d %d %x\n", "hello", 'X', INT_MAX, INT_MIN, UINT_MAX);
+   f = ft_printf("%s %c %d %d %x\n", "hello world", 'X', INT_MAX, INT_MIN, UINT_MAX);
+    s =    printf("%s %c %d %d %x\n", "hello world", 'X', INT_MAX, INT_MIN, UINT_MAX);
     printf("%d | %d\n", f, s);
 }
