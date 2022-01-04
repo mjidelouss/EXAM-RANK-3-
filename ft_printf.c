@@ -10,90 +10,82 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdarg.h>
 #include <unistd.h>
+#include <stdarg.h>
+
+int ft_putchar(char c)
+{
+    return write(1, &c, 1);
+}
+
+int ft_putstr(char *s)
+{
+    int ret = 0;
+    while (*s)
+        ret += ft_putchar(*s++);
+    return ret;
+}
+
+#define hex "0123456789abcdef"
+int ft_putnbr(long long n, int base)
+{
+    int ret = 0;
+
+    if (n < 0)
+    {
+        ret += write(1, "-", 1);
+        n *= -1;
+    }
+    if (n >= base)
+        ret += ft_putnbr(n/base, base);
+    ret += ft_putchar(hex[n%base]);
+    return ret;
+}
+
+int print(char *f, va_list ap)
+{
+    int ret = 0;
+    char c;
+
+    while (*f)
+    {
+        c = *f++;
+        if (c != '%')
+            ret += ft_putchar(c);
+        else
+        {
+            c = *f++;
+            if (c == 'c')
+                ret += ft_putchar((char)va_arg(ap, int));
+            if (c == 's')
+                ret += ft_putstr(va_arg(ap, char *));
+            if (c == 'd')
+                ret += ft_putnbr((long long)va_arg(ap, int), 10);
+            if (c == 'x')
+                ret += ft_putnbr((long long)va_arg(ap, unsigned int), 16);
+        }
+    }
+    return ret;
+}
+
+int ft_printf(char *f, ...)
+{
+    va_list ap;
+    int ret = 0;
+
+    va_start(ap, f);
+    ret += print(f, ap);
+    va_end(ap);
+    return ret;
+}
+
+
+#include <limits.h>
 #include <stdio.h>
-
-int	ft_putchar(char c)
+int main()
 {
-	return(write(1, &c, 1));
-}
-
-int	ft_putstr(char *str)
-{
-	int	len = 0;
-
-	if (!str)
-		str = "(null)";
-	while (*str)
-		len += write(1, str++, 1);
-	return (len);
-}
-
-int	ft_putnbr(long nb)
-{
-	int		len = 0;
-	
-	if (nb < 0)
-	{
-		nb = -nb;
-		len += ft_putchar('-');
-	}
-	if (nb < 10)
-	{
-		len += ft_putchar(nb + '0');
-	}
-	else
-	{
-		len += ft_putnbr(nb / 10);
-		len += ft_putnbr(nb % 10);
-	}
-	return (len);
-}
-
-int	ft_puthexa(unsigned long nb)
-{
-	char	base[16] = "0123456789abcdef";
-	int		len = 0;
-
-	if (nb >= 16)
-	{
-		len += ft_puthexa(nb / 16);
-		len += ft_puthexa(nb % 16);
-	}
-	if (nb < 16)
-		len += ft_putchar(base[nb]);
-	return (len);
-}
-
-int	ft_printf(char *format, ...)
-{
-	int		i = 0;
-	int		len = 0;
-	va_list	ap;
-
-	va_start(ap, format);
-	while (format[i])
-	{
-		if (format[i] == '%')
-		{
-			if (format[i + 1] == 'd' || format[i + 1] == 's' || format[i + 1] == 'x')
-			{
-				if (format[i + 1] == 'd')
-					len += ft_putnbr(va_arg(ap, int));
-				if (format[i + 1] == 's')
-					len += ft_putstr(va_arg(ap, char *));
-				if (format[i + 1] == 'x')
-					len += ft_puthexa(va_arg(ap, unsigned long));
-			}
-			else
-				len += ft_putchar(format[i + 1]);
-			i++;
-		}
-		else
-			len += ft_putchar(format[i]);
-		i++;
-	}
-	va_end(ap);
-	return (len);
+    int f, s;
+    f = ft_printf("%s %c %d %d %x\n", "hello", 'X', INT_MAX, INT_MIN, UINT_MAX);
+    s =    printf("%s %c %d %d %x\n", "hello", 'X', INT_MAX, INT_MIN, UINT_MAX);
+    printf("%d | %d\n", f, s);
 }
